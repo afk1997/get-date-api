@@ -1,22 +1,26 @@
 # Get Date API
 
-A minimal Vercel serverless API that returns today's date in JSON format based on the user's timezone.
+A minimal Vercel serverless API that returns today's date in JSON format based on the user's timezone, with built-in analytics tracking.
 
 ## Features
 
-- Zero dependencies (uses native JavaScript Intl API)
 - Automatic timezone detection from user's IP (via Vercel headers)
 - Manual timezone override via query parameters
 - CORS-enabled for cross-origin requests
 - Date format: DD/MM/YYYY
 - Proper error handling for invalid timezones
+- Real-time analytics dashboard with live stats
+- Privacy-focused analytics (IP addresses are anonymized)
 
 ## Project Structure
 
 ```
 /api
-  date.js          # Serverless function
-package.json       # Project metadata
+  date.js          # Main date API with analytics tracking
+  analytics.js     # Analytics data endpoint
+/public
+  index.html       # Analytics dashboard
+package.json       # Project metadata with @vercel/kv dependency
 vercel.json        # Vercel configuration
 README.md          # Documentation
 ```
@@ -44,6 +48,7 @@ Returns the current date in the specified timezone.
 **Success (200)**
 ```json
 {
+  "message": "Animals Treated on 12/01/2026",
   "date": "12/01/2026",
   "timezone": "Asia/Kolkata"
 }
@@ -76,6 +81,7 @@ curl https://your-app.vercel.app/api/date
 Response:
 ```json
 {
+  "message": "Animals Treated on 12/01/2026",
   "date": "12/01/2026",
   "timezone": "America/New_York"
 }
@@ -89,6 +95,7 @@ curl https://your-app.vercel.app/api/date?timezone=Asia/Kolkata
 Response:
 ```json
 {
+  "message": "Animals Treated on 12/01/2026",
   "date": "12/01/2026",
   "timezone": "Asia/Kolkata"
 }
@@ -120,6 +127,72 @@ fetch('https://your-app.vercel.app/api/date?timezone=Europe/London')
 
 [Full list of IANA timezones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
 
+## Analytics Dashboard
+
+The API includes a real-time analytics dashboard that tracks usage statistics.
+
+### Features
+
+- **Total API hits** - Total number of requests
+- **Geographic data** - Countries, cities, and regions
+- **Timezone usage** - Popular timezones requested
+- **Recent requests** - Last 50 requests with timestamps
+- **Auto-refresh** - Updates every 30 seconds
+- **Privacy-focused** - IP addresses are anonymized
+
+### Access the Dashboard
+
+Visit your deployed app's homepage:
+```
+https://your-app.vercel.app/
+```
+
+### Analytics API Endpoint
+
+GET `/api/analytics` - Returns all analytics data in JSON format
+
+**Response:**
+```json
+{
+  "summary": {
+    "totalHits": 1250,
+    "uniqueCountries": 15,
+    "uniqueCities": 45,
+    "uniqueTimezones": 8
+  },
+  "dailyHits": [
+    { "date": "2026-01-10", "hits": 150 },
+    { "date": "2026-01-11", "hits": 200 }
+  ],
+  "timezones": [
+    { "name": "Asia/Kolkata", "count": 450 },
+    { "name": "America/New_York", "count": 320 }
+  ],
+  "countries": [
+    { "name": "IN", "count": 500 },
+    { "name": "US", "count": 450 }
+  ],
+  "cities": [...],
+  "regions": [...],
+  "recentRequests": [...]
+}
+```
+
+### Data Tracked
+
+- Total API hits (persistent)
+- Daily hit counts (30-day retention)
+- Timezone distribution
+- Country, city, and region statistics
+- Recent 100 requests (anonymized)
+- User agent information
+
+### Privacy
+
+- IP addresses are anonymized (last digits masked)
+- No personally identifiable information stored
+- Data retention: 30 days for daily stats, indefinite for aggregates
+
 ## Deployment
 
 ### Deploy to Vercel
@@ -144,6 +217,25 @@ vercel
 4. Import your repository
 5. Deploy
 
+### Setting Up Vercel KV (Required for Analytics)
+
+After deployment, you need to add Vercel KV storage for analytics:
+
+1. Go to your project dashboard on Vercel
+2. Click on the **"Storage"** tab
+3. Click **"Create Database"**
+4. Select **"KV (Redis)"**
+5. Choose **"Continue"** and follow the prompts
+6. The KV database will be automatically linked to your project
+7. Redeploy your project (or it will auto-deploy on next push)
+
+**Free Tier Limits:**
+- 30,000 commands per month
+- 256 MB storage
+- Perfect for moderate traffic APIs
+
+**Note:** The API will work without KV, but analytics won't be tracked. The dashboard will show an error message prompting you to set up KV.
+
 ## Local Development
 
 1. Install Vercel CLI:
@@ -166,8 +258,10 @@ curl http://localhost:3000/api/date
 - **Runtime**: Node.js 18+
 - **Function Memory**: 128 MB
 - **Max Duration**: 10 seconds
-- **Dependencies**: None (uses native Intl.DateTimeFormat API)
+- **Dependencies**: @vercel/kv (for analytics)
 - **Date Format**: DD/MM/YYYY (day/month/year with leading zeros)
+- **Storage**: Vercel KV (Redis)
+- **Analytics**: Real-time tracking with privacy protection
 
 ## License
 
