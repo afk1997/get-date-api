@@ -42,8 +42,9 @@ export default function handler(req, res) {
     const now = new Date();
     const formattedDate = formatter.format(now);
 
-    // Return JSON response
+    // Return JSON response with custom message
     return res.status(200).json({
+      message: `Animals Treated on ${formattedDate}`,
       date: formattedDate,
       timezone: timezone
     });
