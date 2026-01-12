@@ -1,0 +1,22 @@
+{
+  "name": "get-date-api",
+  "version": "1.0.0",
+  "description": "A Vercel serverless API that returns today's date in JSON format based on user's timezone",
+  "main": "api/date.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "keywords": [
+    "vercel",
+    "serverless",
+    "date",
+    "timezone",
+    "api"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
